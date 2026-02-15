@@ -1,21 +1,26 @@
-# Use Java 17
-FROM eclipse-temurin:17-jdk-alpine
+# Use Maven + Java 17 image to build
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper files
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+# Copy everything
+COPY . .
 
-# Download dependencies
-RUN ./mvnw dependency:go-offline
+# Build the jar
+RUN mvn clean package -DskipTests
 
-# Copy source
-COPY src ./src
+# -----------------------------
 
-# Build jar
-RUN ./mvnw clean package -DskipTests
+# Use lightweight Java image to run
+FROM eclipse-temurin:17-jdk-alpine
 
-# Run app
-CMD ["java", "-jar", "target/*.jar"]
+WORKDIR /app
+
+# Copy jar from build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port (Spring default)
+EXPOSE 8080
+
+# Run application
+CMD ["java", "-jar", "app.jar"]
