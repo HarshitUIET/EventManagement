@@ -2,17 +2,14 @@
 // Member 6: Admin Dashboard – manage users, venues, view all events
 // ============================================
 
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useAuth } from '@/contexts/AuthContext'
+import { dashboardApi, eventsApi, usersApi, venuesApi, type DashboardStats } from '@/services/api'
+import type { Event, User, Venue } from '@/types'
+import { Calendar, MapPin, TrendingUp, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Users, MapPin, Calendar, TrendingUp, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuth } from '@/contexts/AuthContext'
-import { dashboardApi, type DashboardStats } from '@/services/api'
-import { eventsApi } from '@/services/api'
-import { usersApi } from '@/services/api'
-import { venuesApi } from '@/services/api'
-import type { Event, User, Venue } from '@/types'
 
 export function AdminDashboard() {
   const { user } = useAuth()

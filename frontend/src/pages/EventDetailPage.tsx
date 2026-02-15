@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import { eventsApi, registrationsApi } from '@/services/api'
-import type { Event } from '@/types'
+import type { Event , Invoice } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { BookEventModal } from '@/components/booking/BookEventModal'
 import { InvoiceDialog } from '@/components/booking/InvoiceDialog'
@@ -21,7 +21,7 @@ export function EventDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [showBookModal, setShowBookModal] = useState(false)
   const [showInvoice, setShowInvoice] = useState(false)
-  const [invoice, setInvoice] = useState<Record<string, unknown> | null>(null)
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [hasBooked, setHasBooked] = useState(false)
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export function EventDetailPage() {
       )}
 
       <InvoiceDialog
-        invoice={invoice as Parameters<typeof InvoiceDialog>[0]['invoice']}
+        invoice={invoice}
         open={showInvoice}
         onClose={() => setShowInvoice(false)}
       />

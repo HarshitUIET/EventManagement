@@ -2,15 +2,15 @@
 // Member 6: Organizer Dashboard – manage own events
 // ============================================
 
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Calendar, Plus, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
+import { formatDate } from '@/lib/utils'
 import { eventsApi } from '@/services/api'
 import type { Event } from '@/types'
-import { formatDate } from '@/lib/utils'
+import { Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export function OrganizerDashboard() {
   const { user } = useAuth()
