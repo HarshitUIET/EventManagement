@@ -36,6 +36,9 @@ public class EventDTO {
 
     private Integer maxAttendees;
 
+    /** Number of tickets still available (from Ticket table). */
+    private Integer ticketsLeft;
+
     private Double ticketPrice;
 
     private Long venueId;

@@ -9,7 +9,9 @@ import com.eventmanagement.entity.Event;
 import com.eventmanagement.entity.Event.EventStatus;
 import com.eventmanagement.entity.User;
 import com.eventmanagement.entity.Venue;
+import com.eventmanagement.entity.Ticket;
 import com.eventmanagement.repository.EventRepository;
+import com.eventmanagement.repository.TicketRepository;
 import com.eventmanagement.repository.VenueRepository;
 import com.eventmanagement.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
+    private final TicketRepository ticketRepository;
     private final SecurityUtils securityUtils;
 
     @Transactional(readOnly = true)
@@ -169,6 +172,7 @@ public class EventService {
         }
         
         event = eventRepository.save(event);
+        createOrUpdateTicket(event);
         return toDTO(event);
     }
 
@@ -226,6 +230,7 @@ public class EventService {
         }
         
         event = eventRepository.save(event);
+        createOrUpdateTicket(event);
         return toDTO(event);
     }
 
@@ -244,10 +249,33 @@ public class EventService {
             throw new RuntimeException("Access denied. You can only delete your own events");
         }
         
+        ticketRepository.findByEventId(id).ifPresent(ticketRepository::delete);
         eventRepository.deleteById(id);
     }
 
+    private void createOrUpdateTicket(Event event) {
+        int max = event.getMaxAttendees() != null ? event.getMaxAttendees() : 0;
+        String name = event.getName();
+        ticketRepository.findByEventId(event.getId()).ifPresentOrElse(
+                ticket -> {
+                    ticket.setEventName(name);
+                    ticket.setMaxTickets(max);
+                    ticket.setTicketsLeft(Math.min(ticket.getTicketsLeft(), max));
+                    ticketRepository.save(ticket);
+                },
+                () -> ticketRepository.save(Ticket.builder()
+                        .event(event)
+                        .eventName(name)
+                        .maxTickets(max)
+                        .ticketsLeft(max)
+                        .build())
+        );
+    }
+
     private EventDTO toDTO(Event event) {
+        Integer ticketsLeft = ticketRepository.findByEventId(event.getId())
+                .map(Ticket::getTicketsLeft)
+                .orElse(null);
         return EventDTO.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -257,6 +285,7 @@ public class EventService {
                 .location(event.getLocation())
                 .status(event.getStatus())
                 .maxAttendees(event.getMaxAttendees())
+                .ticketsLeft(ticketsLeft)
                 .ticketPrice(event.getTicketPrice())
                 .venueId(event.getVenue() != null ? event.getVenue().getId() : null)
                 .venueName(event.getVenue() != null ? event.getVenue().getName() : null)

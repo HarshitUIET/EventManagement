@@ -14,6 +14,8 @@ export interface Event {
   location?: string
   status: EventStatus
   maxAttendees?: number
+  /** Number of tickets still available (from Ticket table) */
+  ticketsLeft?: number
   ticketPrice?: number
   venueId?: number
   venueName?: string

@@ -4,7 +4,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, MapPin, DollarSign, Search, Plus } from 'lucide-react'
+import { Calendar, MapPin, DollarSign, Search, Plus, Ticket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -267,6 +267,14 @@ export function EventsPage() {
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 shrink-0" />
                       Rs {event.ticketPrice}
+                    </div>
+                  )}
+                  {event.ticketsLeft != null && (
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <Ticket className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className={event.ticketsLeft === 0 ? 'text-destructive font-medium' : 'text-muted-foreground'}>
+                        {event.ticketsLeft === 0 ? 'Sold out' : `${event.ticketsLeft} left`}
+                      </span>
                     </div>
                   )}
                   <div className="pt-2">

@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Sparkles,
   TrendingUp,
+  Ticket,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -226,6 +227,14 @@ function UpcomingEvents({ upcoming }: { upcoming: Event[] }) {
                   {event.venueName && ` · ${event.venueName}`}
                 </CardDescription>
               </CardHeader>
+              <CardContent className="pt-0">
+                {event.ticketsLeft != null && (
+                  <p className={`text-xs ${event.ticketsLeft === 0 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                    <Ticket className="h-3.5 w-3.5 inline mr-1" />
+                    {event.ticketsLeft === 0 ? 'Sold out' : `${event.ticketsLeft} tickets left`}
+                  </p>
+                )}
+              </CardContent>
             </Card>
           </Link>
         ))}

@@ -5,9 +5,11 @@ import com.eventmanagement.dto.InvoiceDTO;
 import com.eventmanagement.dto.RegistrationDTO;
 import com.eventmanagement.entity.Event;
 import com.eventmanagement.entity.Registration;
+import com.eventmanagement.entity.Ticket;
 import com.eventmanagement.entity.User;
 import com.eventmanagement.repository.EventRepository;
 import com.eventmanagement.repository.RegistrationRepository;
+import com.eventmanagement.repository.TicketRepository;
 import com.eventmanagement.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
+    private final TicketRepository ticketRepository;
     private final SecurityUtils securityUtils;
 
     @Transactional
@@ -49,10 +52,24 @@ public class RegistrationService {
             throw new RuntimeException("You have already booked this event");
         }
 
-        int bookedCount = registrationRepository.countByEventId(event.getId());
-        int available = event.getMaxAttendees() != null ? event.getMaxAttendees() : Integer.MAX_VALUE;
-        if (bookedCount + request.getNumberOfTickets() > available) {
-            throw new RuntimeException("Not enough tickets available. Only " + (available - bookedCount) + " left.");
+        Ticket ticket = ticketRepository.findByEventId(event.getId()).orElseGet(() -> {
+            int max = event.getMaxAttendees() != null ? event.getMaxAttendees() : 0;
+            int booked = registrationRepository.countByEventId(event.getId());
+            Ticket newTicket = Ticket.builder()
+                    .event(event)
+                    .eventName(event.getName())
+                    .maxTickets(max)
+                    .ticketsLeft(Math.max(0, max - booked))
+                    .build();
+            return ticketRepository.save(newTicket);
+        });
+        if (ticket.getTicketsLeft() < request.getNumberOfTickets()) {
+            throw new RuntimeException("Not enough tickets available. Only " + ticket.getTicketsLeft() + " left.");
+        }
+
+        int updated = ticketRepository.decrementTickets(event.getId(), request.getNumberOfTickets());
+        if (updated == 0) {
+            throw new RuntimeException("Not enough tickets available. Booking failed.");
         }
 
         String ticketCode = "EVT-" + event.getId() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();

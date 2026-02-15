@@ -33,7 +33,7 @@ export function BookEventModal({
     e.preventDefault()
     setError('')
     if (quantity < 1 || quantity > maxAvailable) {
-      setError(`Please enter 1–${maxAvailable} tickets`)
+      setError(maxAvailable === 0 ? 'No tickets available for this event.' : `Please enter 1–${maxAvailable} tickets`)
       return
     }
     setLoading(true)
@@ -74,11 +74,12 @@ export function BookEventModal({
               min={1}
               max={maxAvailable}
               value={quantity}
+              disabled={maxAvailable === 0}
               onChange={(e) => setQuantity(Math.max(1, Math.min(maxAvailable, parseInt(e.target.value) || 1)))}
               className="h-11"
             />
             <p className="text-xs text-muted-foreground">
-              {maxAvailable} tickets available
+              {maxAvailable === 0 ? 'No tickets available' : `${maxAvailable} ticket${maxAvailable === 1 ? '' : 's'} available`}
             </p>
           </div>
           {ticketPrice != null && ticketPrice > 0 && (
@@ -97,7 +98,7 @@ export function BookEventModal({
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 gap-2" disabled={loading}>
+            <Button type="submit" className="flex-1 gap-2" disabled={loading || maxAvailable === 0}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

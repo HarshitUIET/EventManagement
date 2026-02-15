@@ -1,16 +1,17 @@
 package com.eventmanagement.config;
 
 import com.eventmanagement.entity.Event;
+import com.eventmanagement.entity.Ticket;
 import com.eventmanagement.entity.User;
 import com.eventmanagement.entity.Venue;
 import com.eventmanagement.repository.EventRepository;
+import com.eventmanagement.repository.TicketRepository;
 import com.eventmanagement.repository.UserRepository;
 import com.eventmanagement.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ public class DataSeeder implements ApplicationRunner {
     private final VenueRepository venueRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final TicketRepository ticketRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -209,6 +211,15 @@ public class DataSeeder implements ApplicationRunner {
                         .organizer(organizer)
                         .build()
         );
-        eventRepository.saveAll(events);
+        List<Event> savedEvents = eventRepository.saveAll(events);
+        for (Event e : savedEvents) {
+            int max = e.getMaxAttendees() != null ? e.getMaxAttendees() : 0;
+            ticketRepository.save(Ticket.builder()
+                    .event(e)
+                    .eventName(e.getName())
+                    .maxTickets(max)
+                    .ticketsLeft(max)
+                    .build());
+        }
     }
 }

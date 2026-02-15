@@ -97,6 +97,12 @@ export function AttendeeDashboard() {
                     {event.ticketPrice != null && event.ticketPrice > 0 && (
                       <p className="font-medium">Rs {event.ticketPrice}</p>
                     )}
+                    {event.ticketsLeft != null && (
+                      <p className={`text-xs flex items-center gap-1 ${event.ticketsLeft === 0 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                        <Ticket className="h-3.5 w-3.5 shrink-0" />
+                        {event.ticketsLeft === 0 ? 'Sold out' : `${event.ticketsLeft} tickets left`}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </Link>

@@ -105,8 +105,16 @@ export function EventDetailPage() {
           <div className="flex flex-wrap gap-4 items-center">
             {event.maxAttendees != null && (
               <p className="text-sm">
-                <span className="text-muted-foreground">Max attendees: </span>
+                <span className="text-muted-foreground">Max capacity: </span>
                 <span className="font-medium">{event.maxAttendees}</span>
+              </p>
+            )}
+            {event.ticketsLeft != null && (
+              <p className="text-sm flex items-center gap-1">
+                <Ticket className="h-4 w-4" />
+                <span className={event.ticketsLeft === 0 ? 'font-medium text-destructive' : 'font-medium'}>
+                  {event.ticketsLeft === 0 ? 'Sold out' : `${event.ticketsLeft} tickets left`}
+                </span>
               </p>
             )}
             {event.ticketPrice != null && event.ticketPrice > 0 && (
@@ -121,6 +129,11 @@ export function EventDetailPage() {
                   <Button variant="outline" disabled className="gap-2">
                     <Check className="h-4 w-4" />
                     Already Booked
+                  </Button>
+                ) : event.ticketsLeft !== undefined && event.ticketsLeft === 0 ? (
+                  <Button variant="outline" disabled className="gap-2">
+                    <Ticket className="h-4 w-4" />
+                    Sold Out
                   </Button>
                 ) : (
                   <Button onClick={() => setShowBookModal(true)} className="gap-2">
@@ -138,7 +151,7 @@ export function EventDetailPage() {
         <BookEventModal
           eventName={event.name}
           ticketPrice={event.ticketPrice}
-          maxAvailable={event.maxAttendees ?? 999}
+          maxAvailable={event.ticketsLeft != null ? event.ticketsLeft : (event.maxAttendees ?? 999)}
           open={showBookModal}
           onClose={() => setShowBookModal(false)}
           onConfirm={async (quantity) => {
@@ -148,6 +161,7 @@ export function EventDetailPage() {
             const inv = await registrationsApi.getInvoice(booking.id)
             setInvoice(inv)
             setShowInvoice(true)
+            eventsApi.getById(event.id).then(setEvent)
           }}
         />
       )}
