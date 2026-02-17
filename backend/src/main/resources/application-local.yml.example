@@ -3,5 +3,5 @@
 
 spring:
   datasource:
-    username: root
-    password: Incedo@1234
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
